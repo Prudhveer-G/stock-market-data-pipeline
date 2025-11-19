@@ -1,0 +1,29 @@
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore system files
+.DS_Store
+
+# Ignore compiled models or artifacts
+*.model
+*.pickle
+*.pkl
+
+# Ignore logs
+*.log
+
+# Project folders to ignore
+data/
+output/
