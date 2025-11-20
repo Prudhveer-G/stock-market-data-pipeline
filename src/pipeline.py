@@ -1,31 +1,30 @@
+#!/usr/bin/env python3
 """
-pipeline.py
-
-Simple runner that executes the stock pipeline end-to-end:
-1) fetch_data.py -> downloads raw CSVs into data/
-2) process_data.py -> cleans + feature engineers
-3) train_model.py -> trains model and writes predictions to output/
-Usage: python src/pipeline.py
+pipeline.py — orchestrator (fetch -> process -> train/load)
+Run locally: python src/pipeline.py --ticker TEST --mode local
 """
+import argparse
+import logging
+from fetch_data import fetch_data      # existing file
+from process_data import normalize_df  # existing file
+from train_model import write_local_parquet, upload_parquet  # reuse train_model.py
 
-import subprocess
-import sys
-import os
+# simple plain-text logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+logger = logging.getLogger("pipeline")
 
-SCRIPTS = ["fetch_data.py", "process_data.py", "train_model.py"]
-SRC_DIR = os.path.dirname(__file__)
-
-def run_script(script_name):
-    script_path = os.path.join(SRC_DIR, script_name)
-    print(f"\n--- Running: {script_name} ---")
-    res = subprocess.run([sys.executable, script_path], capture_output=False)
-    if res.returncode != 0:
-        raise SystemExit(f"Script {script_name} failed with return code {res.returncode}")
-
-def main():
-    for s in SCRIPTS:
-        run_script(s)
-    print("\nPipeline finished successfully. Check data/ and output/ for results.")
+def run(ticker: str, mode: str = "local"):
+    logger.info("Starting pipeline", extra={"ticker": ticker, "mode": mode})
+    raw = fetch_data(ticker)
+    df = normalize_df(raw)
+    out_path = write_local_parquet(df, ticker)
+    if mode == "s3":
+        upload_parquet(out_path, ticker)
+    logger.info("Pipeline finished", extra={"output": out_path})
 
 if __name__ == "__main__":
-    main()
+    p = argparse.ArgumentParser()
+    p.add_argument("--ticker", required=True)
+    p.add_argument("--mode", choices=["local","s3"], default="local")
+    args = p.parse_args()
+    run(args.ticker, args.mode)
