@@ -1,49 +1,27 @@
-"""
-fetch_data.py
+# fetch_data.py (ingest)
+import logging
+from tenacity import retry, wait_exponential, stop_after_attempt
 
-Fetches historical stock data using yfinance and saves it into the data/ directory.
-This forms Step 1 of the Stock Market ETL pipeline.
-"""
+logger = logging.getLogger("fetch_data")
+BASE_URL = "https://example.com/api"  # replace when you add real API
 
-import os
-import yfinance as yf
-import pandas as pd
-
-# Configure tickers and period
-TICKERS = ["AAPL", "MSFT", "GOOGL"]   # You can add more (TSLA, AMZN, etc.)
-PERIOD = "1y"                         # 1 year of historical data
-
-OUTPUT_DIR = "data"
-
-
-def fetch_ticker(ticker):
-    """Download a single ticker as a pandas DataFrame."""
-    print(f"Fetching data for: {ticker}")
-
-    df = yf.download(ticker, period=PERIOD, progress=False)
-    if df.empty:
-        print(f"⚠️ Warning: No data fetched for {ticker}")
-        return None
-
-    df = df.reset_index()
-    df["ticker"] = ticker  # add ticker as column
-    return df
-
-
-def main():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-    for ticker in TICKERS:
-        df = fetch_ticker(ticker)
-        if df is None:
-            continue
-
-        save_path = os.path.join(OUTPUT_DIR, f"{ticker}.csv")
-        df.to_csv(save_path, index=False)
-        print(f"Saved → {save_path}")
-
-    print("\nData fetching complete.")
-
-
-if __name__ == "__main__":
-    main()
+@retry(wait=wait_exponential(multiplier=1, min=2, max=30), stop=stop_after_attempt(5))
+def fetch_data(ticker: str):
+    """
+    Fetch raw market data for ticker.
+    For now this returns a local stub for quick testing.
+    Replace with actual requests.get(...) when ready.
+    """
+    logger.info("fetch_data: returning local stub for %s", ticker)
+    return {
+        "prices": [
+            {
+                "date": "2025-01-01T09:15:00+05:30",
+                "open": "100",
+                "high": "110",
+                "low": "95",
+                "close": "105",
+                "volume": "1000"
+            }
+        ]
+    }
