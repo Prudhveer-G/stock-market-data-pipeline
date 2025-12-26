@@ -18,15 +18,15 @@ This project implements a Python-based ETL pipeline to ingest daily stock market
 
 ### Technical Architecture & Data Flow
 
-The pipeline follows a staged ETL process:
+The pipeline follows a simple local ETL workflow:
 
-1. Extract daily stock data using Python  
-2. Clean and validate records  
-3. Transform data into relational format  
-4. Load data into MySQL tables  
-5. Query data using SQL for analysis  
+1. Extract stock data using Python
+2. Transform raw data into a structured DataFrame
+3. Load records into MySQL using a relational schema
+4. Query stored data using SQL for analysis
 
-Each stage operates independently to allow re-runs without manual cleanup.
+Each stage is modular to allow independent testing and re-runs.
+
 
 ---
 
@@ -41,9 +41,10 @@ Each stage operates independently to allow re-runs without manual cleanup.
 
 ### Current Status
 
-- ETL structure defined  
-- Schema designed  
-- Core pipeline logic under development  
+- End-to-end ETL pipeline implemented
+- Loads daily stock data into MySQL
+- Supports repeatable local execution
+ 
 
 ---
 
