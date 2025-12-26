@@ -1,6 +1,4 @@
 pandas
-pyarrow
-boto3
+mysql-connector-python
 tenacity
-pytest
 
